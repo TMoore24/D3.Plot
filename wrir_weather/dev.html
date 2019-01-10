@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+				<style>
+.axis--x path {
+  display: none;
+}
+
+
+  .area {
+  fill: none;
+    stroke: black;
+  clip-path: url(#clip);
+}
+  .area1 {
+  fill: none;
+    stroke: red;
+  clip-path: url(#clip);
+}
+ 
+
+.zoom {
+  cursor: move;
+  fill: none;
+  pointer-events: all;
+}
+  /*style of the modal used for the help button popup */
+  .modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content of help popup */
+.modal-content {
+    background-color: #cccccc;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #303030;
+    width: 80%;
+}
+
+/* The Close Button of help popup*/
+.close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+#myBtn {
+   position: absolute;
+	z-index:100;
+	background-color: #grey;
+	border:#black;
+	padding: 11.5px 17.5px;
+        cursor:pointer;
+font-family: Roboto,Arial,sans-serif;
+font-size: 16px;
+
+}
+  #home {
+    position: absoulute;
+
+	z-index:100;
+	background-color: #grey;
+	border:#black;
+	padding: 11.5px 17.5px;
+        cursor:pointer;
+font-family: Roboto,Arial,sans-serif;
+font-size: 16px;
+        
+}
+#wind {
+  
+	z-index:101;
+	background-color: #grey;
+	border:#black;
+	padding: 11.5px 17.5px;
+        cursor:pointer;
+font-family: Roboto,Arial,sans-serif;
+font-size: 16px;
+        
+}
+
+div.cent{
+position:absolute;
+text-align:center;
+ height: 100%;
+  width: 100%;
+  }
+  div.static{
+position:absolute;
+height: 500px;
+  width: 960px;
+right:30%;}
+  
+
+  
+</style>
+        <script>
+        
+        /* - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+            WYGISC CODE TO ACCESS NEW DATA ENDPOINT
+
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+        // used to format a date object for an SQL query (down to minutes)
+       
+		function _makeDateStringForQuery(dateObj) {
+		 
+            return dateObj.getUTCFullYear() +
+                ('0' + (dateObj.getUTCMonth()+1)).slice(-2) +
+                ('0' + dateObj.getUTCDate()).slice(-2) +
+                ' ' +
+                ('0' + dateObj.getHours()).slice(-2) +
+                ':' +
+                ('0' + dateObj.getMinutes()).slice(-2)
+				
+        }
+
+        // takes two "date" strings valid w/ JS `Date` constructor
+       function addMonths(date, months) {
+  date.setMonth(date.getMonth() + months);
+  return date;
+}
+		/// Made modifications, probally bad ones to autopull dates and update graph oppose to start on a button.
+		function fetchData(startDate,endDate,siteId) {
+			
+			var // make SQL-
+            ti = _makeDateStringForQuery(addMonths(new Date(),-5)),//Now-4 months
+            tf = _makeDateStringForQuery(new Date());
+			sid = "ASWW4";
+			console.log(sid);
+            const fetchURL = 'https://uwmaps.wygisc.org/windriver_k12_custom/index.php';
+            // async return
+            return new Promise(function(resolve,reject){
+                var postData = new FormData();
+                postData.append('ti',ti);
+                postData.append('tf',tf);
+				console.log(ti);
+                postData.append('sid',sid);
+                var xhr = new XMLHttpRequest();
+                xhr.onerror = function(error){console.log(error);};
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState==4 & xhr.status==200) resolve(JSON.parse(xhr.response));
+                };
+                xhr.open('post',fetchURL);
+                xhr.send(postData);
+            });
+        }
+
+        // THIS IS THE FUNCTION TO CALL TO UPDATE THE GRAPH (or get results from the DB)
+
+
+</script>
+
+
+
+
+        
+    </head>
+
+	<body onload='updateGraph(document.getElementById("tInit").value,document.getElementById("tFin").value,document.getElementById("sid").value)'>
+<h1 align='center'>Wind River Indian Reservation Weather Information Center</h1>
+        <p id='tInit'></p> <!--Had to keep these ids going for your code to work with my mods. Dont really understand why  -->
+        <p id='tFin'></p>
+		<p id='sid'></p>
+
+
+       <div class='cent'><svg width="950" height="500"></svg>
+<div class='static'>
+<a href="http://wcca.wygisc.org/sites/wcca.wygisc.org/files/public/wccaApp/weather.html"><button id="home" >Temperature</button></a><a href="http://wcca.wygisc.org/sites/wcca.wygisc.org/files/public/wccaApp/index.html"><button id="home">Home</button></a><button id="myBtn">Help</button>
+<div id="myModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close">×</span>
+    <p>To turn on or off a variable in the graph click on the black button on the right side.<br> To zoom in or out on the graph use to fingers and bring them together, or pull them apart. <br>To move on the graph hold your finger down and slide in the direction you want to go. </p>
+    <h1>Trends</h1>
+    <p>Notice that humidity and temperature are often opposite, this is because cooler air can hold less moisture. When does precipiation occur in relation to humidity and temperature?</p>
+  </div>
+</div></div></div>
+		
+		
+		
+<script src="https://d3js.org/d3.v4.min.js"></script>
+
+<script>
+
+function updateGraph(startDate,endDate,siteId) {
+		
+            fetchData(startDate,endDate,siteId).then(function(results){
+ ////*set size of graph */ 
+var svg = d3.select("svg"),
+    margin = {top: 20, right: 20, bottom: 90, left: 20},
+    margin2 = {top:  440, right: 20, bottom: 20, left: 20},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom,
+    height2 = +svg.attr("height") - margin2.top - margin2.bottom,
+   
+    ////*what we can zoom and pan on in relation to graph */
+  focus = svg.append("g")
+    .attr("class", "focus")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")"),
+context = svg.append("g")
+    .attr("class", "context")
+    .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+////*make date format from JSON work as a scale (MAY NEED TO CHANGE) */
+
+var format = d3.timeParse("%Y-%m-%d %H:%M:%S");
+
+
+
+////*create variable for all a and y axes */
+var x = d3.scaleTime()
+
+    .rangeRound([0, width]);
+  var x2 = d3.scaleTime()
+    .rangeRound([0, width]);
+ 
+var y = d3.scaleLinear()
+    .rangeRound([height, 0]);
+ var y2 = d3.scaleLinear()
+    .rangeRound([height2, 0]); 
+  var y3 = d3.scaleLinear()
+    .rangeRound([height, 0]);
+ ////*the little grpah at the bottom needs them tooo!! */
+  var y32 = d3.scaleLinear()
+    .rangeRound([height2, 0]);
+ 
+  	console.log(x);
+
+////*create variable for each object needed represented and the zoom/toggle function */
+  var brush = d3.brushX()
+    .extent([[0, 0], [width, height2]])
+    .on("brush end", brushed);
+  console.log(brushed)
+  var zoom = d3.zoom()
+    .scaleExtent([1, Infinity])
+    .translateExtent([[0, 0], [width, height]])
+    .extent([[0, 0], [width, height]])
+    .on("zoom", zoomed);
+  
+  var area = d3.area()
+    .curve(d3.curveMonotoneX)
+    .x(function(d,i) { return x(d.date); })
+    .y0(height)
+    .y1(function(d, i) { return y(d.wind); })
+  ;
+ 
+  
+  var linee = d3.area()
+  .curve(d3.curveMonotoneX)
+    .x(function(d,i) { return x(d.date); })
+  .y0(height)
+    .y1(function(d,i) { return y3(d.windg); });
+  
+ 
+  
+  var area2 = d3.area()
+    .curve(d3.curveMonotoneX)
+    .x(function(d,i) { return x2(d.date); })
+    .y0(height2)
+    .y1(function(d,i) { return y2(d.wind); });
+  var linee2 = d3.area()
+  .curve(d3.curveMonotoneX)
+    .x(function(d,i) { return x2(d.date); })
+  .y0(height2)
+    .y1(function(d,i) { return y32(d.windg); });
+  
+  
+  svg.append("defs").append("clipPath")
+    .attr("id", "clip")
+  .append("rect")
+    .attr("width", width)
+    .attr("height", height);
+  
+  
+
+
+// load the data, the date 2 object is faked...will have a date for each parmaeter
+		
+        
+
+                // AND... here is where you should do stuff with `results` object
+
+                // example stuff (feel free to delete this):
+                 // print results to console
+/////Need to format the date
+          console.log(results);
+		  var obs= results.tblWind_WindDirection;
+		   console.log(obs); 
+    var datese= obs.map(a => a.Samp_Datee.date);
+var dates= datese.map(format)
+	console.log(dates);
+	var wind= obs.map(a => a.WindSpeed_m_s);
+	
+	var windg= obs.map(a => a.WindGusts_m_s);
+	
+	
+	
+	(function(d){ return +d; });
+
+		   
+	
+var data = new Object;
+		data.date = dates;
+		
+	
+  
+data.wind=wind;  
+  data.windg=windg;
+
+  
+   // scale the range of the data
+  x.domain(d3.extent(data.date));
+  
+  
+  y.domain(d3.extent(data.windg));
+x2.domain(x.domain());
+  y2.domain(y.domain());
+  y3.domain(d3.extent(data.windg));
+  y32.domain(y3.domain());
+
+  
+  data.airTempByDate = data.date.map(function(d, i){
+	return {
+     date: d,
+    wind: wind[i],
+   windg: windg[i], 
+    };
+	})
+	console.log(data.airTempByDate)
+		
+
+  focus.append("path")
+      .datum(data.airTempByDate)
+      .attr("class", "area1")
+  .attr("id","redLine")
+      .attr("d", linee);
+  
+ focus.append("path")
+      .datum(data.airTempByDate)
+      .attr("class", "area")
+ .attr("id","blueLine")
+      .attr("d", area);
+  
+
+  focus.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+  
+
+  focus.append("g")
+      .attr("class", "axis axis--y")
+  .attr("id","blueLine1")
+  .attr("stroke","black")
+      .call(d3.axisLeft(y))
+  .call(d3.axisLeft(y3));
+  focus.append("g")
+      .attr("class", "axis axis--y")
+
+  context.append("path")
+      .datum(data.airTempByDate)
+      .attr("class", "area")
+  .attr("id","blueLine2")
+      .attr("d", area2);
+ 
+  context.append("path")
+      .datum(data.airTempByDate)
+      .attr("class", "area1")
+  .attr("id","redLine2")
+      .attr("d", linee2);
+
+  
+  context.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + height2 + ")")
+      .call(d3.axisBottom(x));
+  
+
+  context.append("g")
+      .attr("class", "brush")
+      .call(brush)
+      .call(brush.move, x.range());
+
+  svg.append("rect")
+      .attr("class", "zoom")
+      .attr("width", width)
+      .attr("height", height)
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+      .call(zoom);
+
+  console.log(x.domain);
+ function brushed() {
+  if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return; // ignore brush-by-zoom
+  var s = d3.event.selection || x.range();
+  x.domain(s.map(x.invert, x));
+  focus.selectAll(".area1").attr("d", linee);
+   focus.selectAll(".area").attr("d", area);
+   
+   focus.selectAll(".axis--x").call(d3.axisBottom(x));
+
+  svg.selectAll(".zoom").call(zoom.transform, d3.zoomIdentity
+      .scale(width / (s[1] - s[0]))
+      .translate(-s[0], 0));
+   
+     
+}
+ console.log(window.test);
+   
+function zoomed() {
+  if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") return; // ignore zoom-by-brush
+  var t = d3.event.transform;
+  x.domain(t.rescaleX(x2).domain());
+  focus.selectAll(".area1").attr("d", linee);
+focus.selectAll(".area").attr("d", area);
+
+
+  //Ensure the date shifts with zoom//
+  focus.select(".axis--x").call(d3.axisBottom(x));///labels  x axis
+  context.select(".brush").call(brush.move, x.range().map(t.invertX, t));
+  ////Provides output for the date extent when zooming 
+   window.test = x.domain() //trying to make global
+   // make SQL-
+            ti = _makeDateStringForQuery(test[0]),
+            tf = _makeDateStringForQuery(test[1]);
+   
+   console.log(test[0]);
+   console.log(ti);///how can we use this to recall the sql query. Have to redo it? even so if data is pulled here only relevent to the end } below...
+}
+console.log(ti);
+console.log(window.test[0]);
+  
+  // Get the modal
+var modal = document.getElementById('myModal');
+
+// Get the button that opens the modal
+var btn = document.getElementById("myBtn");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks the button, open the modal
+btn.onclick = function() {
+    modal.style.display = "block";
+}
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+    modal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+  
+  
+   
+  
+});}
+  
+</script>
+		
+    </body>
+</html>

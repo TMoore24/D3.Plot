@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> 
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>FeatureLayer</title>
+<script>
+
+setTimeout("location.href = 'https://wrir_weather.wygisc.org';",150000); 
+</script>
+<link rel="stylesheet" href="https://js.arcgis.com/3.18/esri/css/esri.css">
+<script src="https://js.arcgis.com/3.18/"></script>
+
+<style>
+html, body, #map {
+position:absolute;
+z-index:10;
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  width: 100%;
+  
+}
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 10; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+    background-color: #cccccc;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #303030;
+    width: 80%;
+}
+
+/* The Close Button */
+.close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+#myBtn {
+    position:absolute;
+	background-color: #grey;
+	border:#black;
+	padding: 11.5px 17.5px;
+        cursor:pointer;
+font-family: Roboto,Arial,sans-serif;
+font-size: 16px;
+        }
+		#Reset {
+    position:absoulute;
+	background-color: #grey;
+	border:#black;
+	padding: 11.5px 17.5px;
+        cursor:pointer;
+font-family: Roboto,Arial,sans-serif;
+font-size: 16px;    
+}
+div.static{
+position:absolute;
+z-index:100;
+right:50%;}
+
+.fw {
+    position: absolute;
+    top: 300px;
+    left: 400px;
+}
+.parent {
+  margin:0px;
+  diplay: block;
+  position: relative;
+}
+.btn {
+    position: absolute;
+    top: 41%;
+    left: 48%;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    background-color: transparent;
+    color: white;
+    font-size: 16px;
+    padding: 12px 24px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    text-align: center;
+}
+.child {
+  position: absolute;
+  top: 420px; left: 350px;
+  width: 5%; height: 5%;
+   background-color: transparent;
+    border: none;
+}
+.child1 {
+  position: absolute;
+  top: 445px; left: 500px;
+  width: 5%; height: 5%;
+   background-color: transparent;
+  border: none;
+}
+.container {
+    position: absolute;
+    top: 0%;
+    left: 20%;
+	diplay:block;
+	}
+	.containerr {
+    position: absolute;
+    top: 100%;
+    left: 20%;
+	diplay:block;
+	}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  border: 0;
+}
+
+</style>
+</head>
+<body>
+
+ <div class="container">
+ <div class='static'>
+<a href="https://wrir_weather.wygisc.org/"><button id="Reset">Reset</button></a><button id="myBtn">Help</button></div>
+ <img src="mesoR.png"  alt= "imagine a picture of Wyoming" width="800" height="600" class="parent">  <!--style="margin:0px auto;display:block">-->
+   <a href="https://wrir_weather.wygisc.org/temp/" alt="Go to weather station FWWW4"><span class="sr-only">Go to weather station FWWW4</span> <button class="child"><span class="sr-only">Go to weather station FWWW4</span></button></a>
+ <a href="https://wrir_weather.wygisc.org/tempfw/" alt="Go to weather station ASWW4"><span class="sr-only">Go to weather station ASWW4</span> <button class="child1"><span class="sr-only">Go to weather station ASWW4</span></button></a>
+
+
+  <div id="myModal" class="modal">
+  <!-- Modal content -->
+  
+  <div class="modal-content">
+    <span class="close">×</span>
+    <p>This is a elevation map of your area. The two blue markers on the screen are weather stations close to where you are now. Click on either of them and explore the data. Below the elevation map is the Wind River Reservation Mapping Application.
+   </div></div>
+  <div id='identifyDiv'></div>
+    <h1 align='center'>Wind River Indian Reservation Weather Information Center</h1>
+    
+ 
+  
+<!--<iframe src="https://uwmaps.wygisc.org/wrir_viewer/index.html" height="600" width="800" style="margin:0px auto;display:block;"></iframe>--></div>
+<script>
+
+
+
+//var map;
+
+
+		window.onclick = function(event) {
+if (event.target == modal) {
+modal.style.display = "none";
+
+    }};
+var modal = document.getElementById('myModal'); 
+var btn = document.getElementById("myBtn");
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+// When the user clicks the button, open the modal
+
+btn.onclick = function() {
+
+    modal.style.display = "block";
+}
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+    modal.style.display = "none";
+}
+//timeout redirect to pictures scrolling
+//setTimeout(function(){location.href="http://www.google.com"} , 5000);
+//setTimeout(function(){location.href = 'http://www.google.com';,2000);}
+
+</script>
+
+
+</body>
+
+</html>

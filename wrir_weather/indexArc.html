@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head> 
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>FeatureLayer</title>
+<script>
+
+setTimeout("location.href = 'https://wrir_weather.wygisc.org/';",150000); 
+</script>
+<link rel="stylesheet" href="https://js.arcgis.com/3.18/esri/css/esri.css">
+<script src="https://js.arcgis.com/3.18/"></script>
+
+<style>
+html, body, #map {
+position:absolute;
+z-index:10;
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  width: 100%;
+  
+}
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 10; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+    background-color: #cccccc;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #303030;
+    width: 80%;
+}
+
+/* The Close Button */
+.close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+#myBtn {
+    position:absolute;
+	
+	background-color: #grey;
+	border:#black;
+	padding: 11.5px 17.5px;
+        cursor:pointer;
+font-family: Roboto,Arial,sans-serif;
+font-size: 16px;
+        }
+		#Reset {
+    position:absoulute;
+	
+	background-color: #grey;
+	border:#black;
+	padding: 11.5px 17.5px;
+        cursor:pointer;
+font-family: Roboto,Arial,sans-serif;
+font-size: 16px;    
+}
+div.static{
+position:absolute;
+z-index:100;
+right:50%;}
+</style>
+</head>
+<body>
+ <div id="map">
+<div class='static'>
+<a href="https://wrir_weather.wygisc.org/"><button id="Reset">Reset</button></a><button id="myBtn">Help</button></div>
+  <div id="myModal" class="modal">
+  <!-- Modal content -->
+  
+  <div class="modal-content">
+    <span class="close">×</span>
+    <p>This is a satellite image of your current location. The two orange markers on the screen are weather stations close to where you are now. Click on either of them to see what they can tell you.If you cannot see the markers, click the "Reset" button and it will bring you home. Just click anywhere to exit back to the map.
+   </div></div>
+  <div id='identifyDiv'></div></div>
+  </div>
+ 
+<script>
+
+
+
+var map;
+
+require(
+  [
+    //  MODULES FROM ESRI API AND DOJO API
+    "dojo/on",
+    "esri/map",
+    'esri/InfoTemplate',
+    "esri/dijit/Popup",
+    "esri/layers/FeatureLayer",
+    "esri/layers/KMLLayer",
+    "esri/symbols/SimpleMarkerSymbol",
+    "dojo/domReady!"
+  ], function(
+    on,
+    Map,
+    InfoTemplate,
+    Popup,
+    FeatureLayer,
+    KMLLayer,
+    SimpleMarkerSymbol) {
+
+
+    //  Create a new popup for the map.infoWindow object
+    var popup = new Popup({                    
+        titleInBody: true
+    }, "identifyDiv");
+    popup.visibleWhenEmpty = false;
+
+    //  Create our ESRI map object
+  map = new Map("map", {
+      infoWindow: popup, // specify the popup
+      basemap: "hybrid",
+      center: [-106.95, 42.80],
+      zoom: 8,
+	  logo:false
+	  
+    });
+
+    // WyCEHG Points filtered by Wind River Reservation Locality 
+    var featureLayer = new FeatureLayer("https://services.wygisc.org/portal/sharing/servers/a468637dbb08415d90bc839723986e7c/rest/services/WyCEHG/WyCEHG_Geometry/MapServer/0", {
+      id:'datapoints'
+    });
+	  featureLayer.setDefinitionExpression("Locality='WRIR'"); // filter
+    featureLayer.setInfoTemplate(new InfoTemplate('test','${*}')); // infoTemplate info for the popup
+featureLayer.size = 400;
+    //  HUC Watershed layer
+    var huc = new KMLLayer("https://wrir_weather.wygisc.org/huc8.kml",{id:'huc'});
+	var river = new KMLLayer("https://wrir_weather.wygisc.org/wind.kmz",{id:'river'});
+    //  Once the map loads, we can add the layers
+    on(map,'load',function(){
+	map.addLayer(featureLayer);
+	map.addLayer(river);
+      map.addLayer(huc);
+	  
+      
+    });
+
+    //  Add a listener for when the "infoWindow" / popup get popuplated with some features from a user click
+    on(popup,'set-features',function(){
+      popup.features.forEach(function(feature) { // iterate through those features
+        if (feature.attributes.ESRI_OID) { // if the features contains an attribute named "ESRI_OID" continue...
+          var ID = feature.attributes.ESRI_OID; // store the ID for use...
+          switch(ID) { // depending on the value of `ID`, select an action to take:
+            // ID === 1
+            case 1:
+              window.location.href = "https://wrir_weather.wygisc.org/tempfw";
+              break;
+            // ID === 2
+            case 2:
+              window.location.href = "https://wrir_weather.wygisc.org/temp";
+              break;
+            default: console.log("ID did not match any provided switch case");
+          }
+        }
+      });
+
+    });
+
+  }); // end `require`
+  
+  
+		window.onclick = function(event) {
+if (event.target == modal) {
+modal.style.display = "none";
+
+    }};
+var modal = document.getElementById('myModal'); 
+var btn = document.getElementById("myBtn");
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+// When the user clicks the button, open the modal
+
+btn.onclick = function() {
+
+    modal.style.display = "block";
+}
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+    modal.style.display = "none";
+}
+//timeout redirect to pictures scrolling
+//setTimeout(function(){location.href="http://www.google.com"} , 5000);
+//setTimeout(function(){location.href = 'http://www.google.com';,2000);}
+
+</script>
+
+
+</body>
+
+</html>

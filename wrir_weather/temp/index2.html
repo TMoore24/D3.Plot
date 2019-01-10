@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+				<style>
+.axis--x path {
+  display: none;
+}
+
+
+  .area {
+  fill: none;
+    stroke: red;
+  clip-path: url(#clip);
+}
+  .area1 {
+  fill: none;
+    stroke: blue;
+  clip-path: url(#clip);
+}
+ 
+
+.zoom {
+  cursor: move;
+  fill: none;
+  pointer-events: all;
+}
+  /*style of the modal used for the help button popup */
+  .modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content of help popup */
+.modal-content {
+    background-color: #cccccc;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #303030;
+    width: 80%;
+}
+
+/* The Close Button of help popup*/
+.close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+#myBtn {
+   position: absolute;
+   margin: 4px;
+	z-index:100;
+	background-color: rgba(6, 0, 3, .22);
+	border: 2px solid #555555;
+	padding: 11.5px 17.5px;
+        cursor:pointer;
+font-family: Roboto,Arial,sans-serif;
+font-size: 16px;
+
+}
+  #home {
+    position: absoulute;
+    margin: 4px;
+	z-index:100;
+	background-color: rgba(6, 0, 3, .22);
+	border: 2px solid #555555;
+	padding: 11.5px 17.5px;
+        cursor:pointer;
+font-family: Roboto,Arial,sans-serif;
+font-size: 16px;
+        
+}
+
+div.color {
+color:red;
+text-align:right;
+}
+div.color2 {
+color:black;
+text-align:right;
+}
+div.cent{
+position:absolute;
+text-align:center;
+ height: 100%;
+  width: 100%;
+  }
+  div.static{
+position:absolute;
+height: 500px;
+  width: 960px;
+right:30%;}
+  
+
+  
+</style>
+ <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="wrirGraph.js"></script>
+    <script>
+        window.onload = function() {
+            updateGraph(null,null, document.getElementById("siteIdSelect").value)
+        }
+    </script>
+
+</head>
+<body><!--onload='updateGraph(document.getElementById("tInit").value,document.getElementById("tFin").value,document.getElementById("sid").value)'-->
+    <h1 align='center'>Wind River Indian Reservation Weather Information Center</h1>
+
+    <select id="siteIdSelect">
+        <option value="ASWW4" selected>ASWW4</option>
+        <option value="FWWW4">FWWW4</option>
+    </select>
+    <div id="aggBy"></div>
+
+    <div class='cent'>
+        <svg width="950" height="500"></svg>
+        <div class='static'>
+               <a href="https://wrir_weather.wygisc.org/"><button id="home">Home</button></a>
+			<a href="https://wrir_weather.wygisc.org/wind"><button id="home">Wind</button></a>
+           <a href="https://wrir_weather.wygisc.org/rain"><button id="home">Precipitation</button></a>
+		   <a href="https://wrir_weather.wygisc.org/humid"><button id="home">Humidity</button></a>
+		  
+			 
+              <button id="myBtn">Help</button>
+            <div id="myModal" class="modal">
+                <!-- Modal content -->
+                <div class="modal-content">
+                    <span class="close">×</span>
+                    <p>
+                        To zoom in or out on the graph use to fingers and bring them together, or pull them apart.<br>
+                        To move on the graph hold your finger down and slide in the direction you want to go.<br>
+						Exit this box by clicking anywhere outside it.
+                    </p>
+                    <h1>Trends</h1>
+                    <p>What trends do you notice between parameters? For example how do humidity and precipitation correlate?<br>
+					   How do the two sites differ?</p>
+                </div>
+            </div>
+        </div>
+    </div>
+		<div id="windnow"class="color2"></div>
+<div id="windnowG"class="color"></div>		
+
+	
+    </body>
+</html>
+
